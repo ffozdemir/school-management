@@ -1,13 +1,17 @@
 package com.ffozdemir.schoolmanagement.controller.user;
 
 import com.ffozdemir.schoolmanagement.payload.request.user.UserRequest;
+import com.ffozdemir.schoolmanagement.payload.request.user.UserRequestWithoutPassword;
+import com.ffozdemir.schoolmanagement.payload.response.abstracts.BaseUserResponse;
 import com.ffozdemir.schoolmanagement.payload.response.business.ResponseMessage;
 import com.ffozdemir.schoolmanagement.payload.response.user.UserResponse;
 import com.ffozdemir.schoolmanagement.service.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -19,8 +23,48 @@ public class UserController {
 
 	@PostMapping("/save/{userRole}")
 	public ResponseEntity<ResponseMessage<UserResponse>> saveUser(
-				@RequestBody @Valid UserRequest userRequest, @PathVariable String userRole) {
+				@RequestBody @Valid UserRequest userRequest,
+				@PathVariable String userRole) {
 		return ResponseEntity.ok(userService.saveUser(userRequest, userRole));
 	}
+
+
+	@GetMapping("/getUserByPage/{userRole}")
+	public ResponseEntity<Page<UserResponse>> getUserByPage(
+				@PathVariable String userRole,
+				@RequestParam(value = "page", defaultValue = "0") int page,
+				@RequestParam(value = "size", defaultValue = "10") int size,
+				@RequestParam(value = "sort", defaultValue = "name") String sort,
+				@RequestParam(value = "type", defaultValue = "desc") String type) {
+		Page<UserResponse> userResponses = userService.getUserByPage(page, size, sort, type, userRole);
+		return ResponseEntity.ok(userResponses);
+	}
+
+
+	@GetMapping("/getUserById/{userId}")
+	public ResponseMessage<BaseUserResponse> getUserById(
+				@PathVariable Long userId) {
+		return userService.findUserById(userId);
+	}
+
+	@DeleteMapping("/deleteUserById/{userId}")
+	public ResponseEntity<String> deleteUserById(
+				@PathVariable Long userId) {
+		return ResponseEntity.ok(userService.deleteUserById(userId));
+	}
+
+	@PutMapping("/update/{userId}")
+	public ResponseMessage<UserResponse> updateUserById(
+				@RequestBody @Valid UserRequest userRequest,
+				@PathVariable Long userId) {
+		return userService.updateUserById(userRequest, userId);
+	}
+
+	@PatchMapping("/updateLoggedInUser")
+	public ResponseEntity<String> updateLoggedInUser(@RequestBody @Valid
+	                                                 UserRequestWithoutPassword userRequestWithoutPassword, HttpServletRequest httpServletRequest) {
+		return ResponseEntity.ok(userService.updateLoggedInUser(userRequestWithoutPassword, httpServletRequest));
+	}
+
 
 }
