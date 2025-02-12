@@ -115,5 +115,16 @@ public class UserService {
 		User user = userRepository.findByUsername(username);
 		methodHelper.checkBuildIn(user);
 		uniquePropertyValidator.checkUniqueProperty(user, userRequestWithoutPassword);
+		user.setName(userRequestWithoutPassword.getName());
+		user.setSurname(userRequestWithoutPassword.getSurname());
+		user.setSsn(userRequestWithoutPassword.getSsn());
+		user.setUsername(userRequestWithoutPassword.getUsername());
+		user.setBirthday(userRequestWithoutPassword.getBirthDay());
+		user.setBirthplace(userRequestWithoutPassword.getBirthPlace());
+		user.setPhoneNumber(userRequestWithoutPassword.getPhoneNumber());
+		user.setEmail(userRequestWithoutPassword.getEmail());
+		user.setGender(userRequestWithoutPassword.getGender());
+		userRepository.save(user);
+		return SuccessMessages.USER_UPDATE;
 	}
 }
