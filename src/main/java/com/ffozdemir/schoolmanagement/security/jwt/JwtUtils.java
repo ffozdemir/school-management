@@ -1,9 +1,11 @@
 package com.ffozdemir.schoolmanagement.security.jwt;
 
+import com.ffozdemir.schoolmanagement.security.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -18,6 +20,12 @@ public class JwtUtils {
 
 	@Value("${backendapi.app.jwtSecret}")
 	private String jwtSecret;
+
+	public String generateToken(
+				Authentication authentication) {
+		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+		return buildTokenFromUsername(userDetails.getUsername());
+	}
 
 
 	/**
@@ -56,7 +64,7 @@ public class JwtUtils {
 	}
 
 
-	private String getUsernameFromToken(
+	public String getUsernameFromToken(
 				String token) {
 		return Jwts.parser()
 					       .setSigningKey(jwtSecret)
