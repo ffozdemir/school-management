@@ -15,8 +15,9 @@ public class JwtUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtUtils.class);
 
+
 	@Value("${backendapi.app.jwtExpirationMs}")
-	private long jwtExpiration;
+	private long jwtExpirations;
 
 	@Value("${backendapi.app.jwtSecret}")
 	private String jwtSecret;
@@ -37,7 +38,7 @@ public class JwtUtils {
 		return Jwts.builder()
 					       .setSubject(username)
 					       .setIssuedAt(new Date())
-					       .setExpiration(new Date(new Date().getTime() + jwtExpiration))
+					       .setExpiration(new Date(new Date().getTime() + jwtExpirations))
 					       .signWith(SignatureAlgorithm.HS512, jwtSecret)
 					       .compact();
 	}
@@ -61,8 +62,8 @@ public class JwtUtils {
 			LOGGER.error("JWT claims string is empty: {}", e.getMessage());
 		}
 		return false;
-	}
 
+	}
 
 	public String getUsernameFromToken(
 				String token) {
@@ -72,5 +73,6 @@ public class JwtUtils {
 					       .getBody()
 					       .getSubject();
 	}
+
 
 }

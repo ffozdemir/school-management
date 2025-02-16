@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
@@ -38,7 +39,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 				HttpServletResponse response,
 				FilterChain filterChain) throws ServletException, IOException {
 		try {
-			//1-from every request , we will get JWT
+			//1-from every request, we will get JWT
 			String jwt = parseJwt(request);
 			//validate JWT
 			if (jwt != null && jwtUtils.validateToken(jwt)) {
@@ -50,13 +51,16 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 				request.setAttribute("username", username);
 				//6- we load user details information to security context
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+				SecurityContextHolder.getContext()
+							.setAuthentication(authentication);
 			}
-		}catch (UsernameNotFoundException e){
+		} catch (UsernameNotFoundException e) {
 			LOGGER.error("Can not set user authentication", e);
 		}
 		filterChain.doFilter(request, response);
 	}
 
+	//Authorization -> Bearer ljsdfnkltskdfnvszlkfnvaqqdfknvaefkdsnvsacdfjknvcaldknsvcal
 	private String parseJwt(
 				HttpServletRequest request) {
 		String authHeader = request.getHeader("Authorization");

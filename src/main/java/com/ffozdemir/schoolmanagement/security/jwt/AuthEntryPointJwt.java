@@ -1,7 +1,6 @@
 package com.ffozdemir.schoolmanagement.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -17,21 +16,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {
-
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthEntryPointJwt.class);
 
 	/**
 	 * this class handle exceptions in security- and returns-readable response.
-	 * @param request that resulted in an <code>AuthenticationException</code>
-	 * @param response so that the user agent can begin authentication
+	 *
+	 * @param request       that resulted in an <code>AuthenticationException</code>
+	 * @param response      so that the user agent can begin authentication
 	 * @param authException that caused the invocation
 	 */
-
-
-
 	@Override
 	public void commence(
 				HttpServletRequest request,
@@ -48,6 +43,4 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 		final ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(response.getOutputStream(), body);
 	}
-
-
 }

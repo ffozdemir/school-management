@@ -31,6 +31,7 @@ public class WebSecurityConfig {
 	//diger pakette olusturdugumuz security exception handler
 	private final AuthEntryPointJwt authEntryPointJwt;
 
+	@Bean
 	public SecurityFilterChain securityFilterChain(
 				HttpSecurity http) throws Exception {
 		//CORS cross*origin resource sharing
@@ -59,7 +60,7 @@ public class WebSecurityConfig {
 					.sameOrigin();
 		//configure authentication provider
 		http.authenticationProvider(authenticationProvider());
-		//configure JWT token handler
+		//configure JWT token hanler
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
@@ -77,6 +78,7 @@ public class WebSecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 
+
 	@Bean
 	public AuthTokenFilter authenticationJwtTokenFilter() {
 		return new AuthTokenFilter();
@@ -88,6 +90,7 @@ public class WebSecurityConfig {
 		return configuration.getAuthenticationManager();
 	}
 
+
 	@Bean
 	public WebMvcConfigurer corsConfigurer() {
 		return new WebMvcConfigurer() {
@@ -97,12 +100,14 @@ public class WebSecurityConfig {
 				registry.addMapping("/**")
 							//we let all sources to call our APIs
 							.allowedOrigins("*")
-							.allowedMethods("*")
-							.allowedHeaders("*");
+							.allowedHeaders("*")
+							.allowedMethods("*");
 			}
 		};
 	}
 
+
 	private static final String[] AUTH_WHITELIST = {"/v3/api-docs/**", "swagger-ui.html", "/swagger-ui/**", "/", "index.html", "/images/**", "/css/**", "/js/**", "/contactMessages/save", "/auth/login"};
+
 
 }

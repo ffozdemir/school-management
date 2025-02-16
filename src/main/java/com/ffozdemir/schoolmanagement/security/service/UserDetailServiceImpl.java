@@ -12,17 +12,14 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class UserDetailServiceImpl implements UserDetailsService {
 
-  private final MethodHelper methodHelper;
-
+	private final MethodHelper methodHelper;
 
 	@Override
 	public UserDetails loadUserByUsername(
 				String username) throws UsernameNotFoundException {
 		User user = methodHelper.loadByUsername(username);
-		return new UserDetailsImpl(
-					user.getId(),
-					user.getUsername(),
-					user.getPassword(),
-					user.getUserRole().getRoleType().getName());
+		return new UserDetailsImpl(user.getId(), user.getUsername(), user.getPassword(), user.getUserRole()
+					                                                                                 .getRoleType()
+					                                                                                 .getName());
 	}
 }

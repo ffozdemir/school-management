@@ -19,11 +19,10 @@ public class UserDetailsImpl implements UserDetails {
 	private Long id;
 
 	private String username;
-
 	@JsonIgnore
 	private String password;
 
-	List<GrantedAuthority> authorities;
+	private List<GrantedAuthority> authorities;
 
 	public UserDetailsImpl(
 				Long id,
