@@ -5,13 +5,12 @@ import com.ffozdemir.schoolmanagement.payload.response.business.EducationTermRes
 import com.ffozdemir.schoolmanagement.payload.response.business.ResponseMessage;
 import com.ffozdemir.schoolmanagement.service.business.EducationTermService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/educationTerm")
@@ -22,8 +21,49 @@ public class EducationTermController {
 
 	@PreAuthorize("hasAnyAuthority('Admin' , 'Dean')")
 	@PostMapping("/save")
-	public ResponseMessage<EducationTermResponse> save(@Valid @RequestBody EducationTermRequest educationTermRequest) {
+	public ResponseMessage<EducationTermResponse> save(
+				@Valid @RequestBody EducationTermRequest educationTermRequest) {
 		return educationTermService.save(educationTermRequest);
 	}
+
+	@PreAuthorize("hasAnyAuthority('Admin','Dean','ViceDean','Teacher')")
+	@PutMapping("/update/{educationTermId}")
+	public ResponseMessage<EducationTermResponse> updateEducationTerm(
+				@Valid @RequestBody EducationTermRequest educationTermRequest,
+				@PathVariable Long educationTermId) {
+		return educationTermService.updateEducationTerm(educationTermRequest, educationTermId);
+	}
+
+
+	@PreAuthorize("hasAnyAuthority('Admin' , 'Dean', 'ViceDean', 'Teacher')")
+	@GetMapping("/getAll")
+	public List<EducationTermResponse> getAllEducationTerms() {
+		return educationTermService.getAllEducationTerms();
+	}
+
+	@PreAuthorize("hasAnyAuthority('Admin' , 'Dean', 'ViceDean', 'Teacher')")
+	@GetMapping("/{educationTermId}")
+	public EducationTermResponse getEducationTerm(
+				@PathVariable Long educationTermId) {
+		return educationTermService.getEducationTermById(educationTermId);
+	}
+
+	@PreAuthorize("hasAnyAuthority('Admin' , 'Dean', 'ViceDean', 'Teacher')")
+	@GetMapping("/getByPage")
+	public Page<EducationTermResponse> getByPage(
+				@RequestParam(value = "page", defaultValue = "0") int page,
+				@RequestParam(value = "size", defaultValue = "10") int size,
+				@RequestParam(value = "sort", defaultValue = "term") String sort,
+				@RequestParam(value = "type", defaultValue = "desc") String type) {
+		return educationTermService.getByPage(page, size, sort, type);
+	}
+
+	@PreAuthorize("hasAnyAuthority('Admin' , 'Dean', 'ViceDean', 'Teacher')")
+	@DeleteMapping("/delete/{educationTermId}")
+	public ResponseMessage<EducationTermResponse> deleteEducationTerm(
+				@PathVariable Long educationTermId) {
+		return educationTermService.deleteById(educationTermId);
+	}
+
 
 }
