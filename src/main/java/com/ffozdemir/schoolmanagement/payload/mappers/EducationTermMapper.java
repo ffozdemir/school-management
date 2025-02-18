@@ -3,11 +3,9 @@ package com.ffozdemir.schoolmanagement.payload.mappers;
 import com.ffozdemir.schoolmanagement.entity.concretes.business.EducationTerm;
 import com.ffozdemir.schoolmanagement.payload.request.business.EducationTermRequest;
 import com.ffozdemir.schoolmanagement.payload.response.business.EducationTermResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class EducationTermMapper {
 
 	public EducationTerm mapEducationTermRequestToEducationTerm(
