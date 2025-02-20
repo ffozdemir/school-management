@@ -18,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -79,9 +81,30 @@ public class LessonService {
 					       .build();
 	}
 
-	private Lesson isLessonExistbyId(
+	public Lesson isLessonExistbyId(
 				Long lessonId) {
 		return lessonRepository.findById(lessonId)
 					       .orElseThrow(()->new ResourceNotFoundException(ErrorMessages.NOT_FOUND_LESSON_MESSAGE));
+	}
+
+	public LessonResponse updateLesson(
+				@Valid LessonRequest lessonRequest,
+				Long lessonId) {
+		Lesson lessonFromDb = isLessonExistbyId(lessonId);
+		if (!lessonRequest.getLessonName()
+					     .equals(lessonFromDb.getLessonName())) {
+			isLessonExistByName(lessonRequest.getLessonName());
+		}
+		Lesson lessonToUpdate = lessonMapper.mapLessonRequestToLesson(lessonRequest);
+		lessonToUpdate.setId(lessonId);
+		Lesson savedLesson = lessonRepository.save(lessonToUpdate);
+		return lessonMapper.mapLessonToLessonRespone(savedLesson);
+	}
+
+	public Set<Lesson> getAllByIdSet(
+				Set<Long> idSet) {
+		return idSet.stream()
+					       .map(this::isLessonExistbyId)
+					       .collect(Collectors.toSet());
 	}
 }

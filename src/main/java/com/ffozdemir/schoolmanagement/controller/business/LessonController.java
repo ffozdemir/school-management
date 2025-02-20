@@ -1,15 +1,18 @@
 package com.ffozdemir.schoolmanagement.controller.business;
 
+import com.ffozdemir.schoolmanagement.entity.concretes.business.Lesson;
 import com.ffozdemir.schoolmanagement.payload.request.business.LessonRequest;
 import com.ffozdemir.schoolmanagement.payload.response.business.LessonResponse;
 import com.ffozdemir.schoolmanagement.payload.response.business.ResponseMessage;
 import com.ffozdemir.schoolmanagement.service.business.LessonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/lesson")
@@ -48,4 +51,20 @@ public class LessonController {
 				@RequestParam(value = "type", defaultValue = "desc") String type) {
 		return lessonService.findLessonByPage(page, size, sort, type);
 	}
+
+	@PreAuthorize("hasAnyAuthority('Admin' , 'Dean', 'ViceDean')")
+	@PutMapping("/update/{lessonId}")
+	public ResponseEntity<LessonResponse> updateLessonById(
+				@PathVariable Long lessonId,
+				@RequestBody @Valid LessonRequest lessonRequest) {
+		return ResponseEntity.ok(lessonService.updateLesson(lessonRequest, lessonId));
+	}
+
+	@PreAuthorize("hasAnyAuthority('Admin' , 'Dean', 'ViceDean')")
+	@GetMapping("/getAllByIdSet")
+	public Set<Lesson> getAllByIdSet(
+				@RequestParam(name = "lessonId") Set<Long> idSet) {
+		return lessonService.getAllByIdSet(idSet);
+	}
+
 }

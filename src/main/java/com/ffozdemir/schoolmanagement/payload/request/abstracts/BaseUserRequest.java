@@ -20,5 +20,4 @@ public class BaseUserRequest extends AbstractUserRequest {
 
 	private Boolean buildIn = false;
 
-
 }
