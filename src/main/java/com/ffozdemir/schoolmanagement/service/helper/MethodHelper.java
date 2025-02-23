@@ -34,6 +34,14 @@ public class MethodHelper {
 			throw new ResourceNotFoundException(String.format(ErrorMessages.NOT_FOUND_USER_MESSAGE, username));
 		}
 		return user;
-
 	}
+
+	public void checkIsAdvisor(
+				User user) {
+		if (!user.getIsAdvisor()) {
+			throw new BadRequestException(String.format(ErrorMessages.NOT_ADVISOR_TEACHER_MESSAGE, user.getId()));
+		}
+	}
+
+
 }

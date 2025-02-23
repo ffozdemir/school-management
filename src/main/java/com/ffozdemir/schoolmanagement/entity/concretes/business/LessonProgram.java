@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -33,9 +34,9 @@ public class LessonProgram {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm", timezone = "US")
 	private LocalTime stopTime;
 
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "lesson_program_lesson", joinColumns = @JoinColumn(name = "lessonprogram_id"), inverseJoinColumns = @JoinColumn(name = "lesson_id"))
-	private Set<Lesson> lessons;
+	private List<Lesson> lessons;
 
 	@ManyToOne
 	private EducationTerm educationTerm;
@@ -45,8 +46,9 @@ public class LessonProgram {
 	private Set<User> users;
 
 	@PreRemove
-	private void removeLessonFromUser(){
-		users.forEach(user -> user.getLessonProgramList().remove(this));
+	private void removeLessonFromUser() {
+		users.forEach(user->user.getLessonProgramList()
+					                    .remove(this));
 	}
 
 

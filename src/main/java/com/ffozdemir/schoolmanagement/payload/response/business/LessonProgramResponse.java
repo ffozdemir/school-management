@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -23,7 +24,7 @@ public class LessonProgramResponse {
 	private Day day;
 	private LocalTime startTime;
 	private LocalTime stopTime;
-	private Set<Lesson> lessonName;
+	private List<Lesson> lessonName;
 	private EducationTerm educationTerm;
 
 }

@@ -7,6 +7,7 @@ import com.ffozdemir.schoolmanagement.payload.request.business.LessonProgramRequ
 import com.ffozdemir.schoolmanagement.payload.response.business.LessonProgramResponse;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -14,7 +15,7 @@ public class LessonProgramMapper {
 
 	public LessonProgram mapLessonProgramRequestToLessonProgram(
 				LessonProgramRequest lessonProgramRequest,
-				Set<Lesson> lessonSet,
+				List<Lesson> lessonSet,
 				EducationTerm educationTerm) {
 		return LessonProgram.builder()
 					       .startTime(lessonProgramRequest.getStartTime())

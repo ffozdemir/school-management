@@ -1,6 +1,7 @@
 package com.ffozdemir.schoolmanagement.entity.concretes.business;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ffozdemir.schoolmanagement.entity.enums.Term;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,6 +38,7 @@ public class EducationTerm {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private LocalDate lastRegistrationDate;
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "educationTerm", cascade = CascadeType.ALL)
 	private List<LessonProgram> lessonProgram;
 

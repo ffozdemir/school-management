@@ -3,31 +3,23 @@ package com.ffozdemir.schoolmanagement.payload.mappers;
 import com.ffozdemir.schoolmanagement.entity.concretes.business.EducationTerm;
 import com.ffozdemir.schoolmanagement.payload.request.business.EducationTermRequest;
 import com.ffozdemir.schoolmanagement.payload.response.business.EducationTermResponse;
-import org.springframework.stereotype.Component;
+import org.mapstruct.*;
 
-@Component
-public class EducationTermMapper {
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+			//with this parameter, MapStruct will always check source properties if they have null value or not.
+			nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+			//If a source bean property equals null, the target bean property will be ignored and retain its existing value. So, we will be able to perform partial update.
+			nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+public interface EducationTermMapper {
 
-	public EducationTerm mapEducationTermRequestToEducationTerm(
-				EducationTermRequest educationTermRequest) {
-		return EducationTerm.builder()
-					       .term(educationTermRequest.getTerm())
-					       .startDate(educationTermRequest.getStartDate())
-					       .endDate(educationTermRequest.getEndDate())
-					       .lastRegistrationDate(educationTermRequest.getLastRegistrationDate())
-					       .build();
-	}
+	EducationTerm mapEducationTermRequestToEducationTerm(
+				EducationTermRequest educationTermRequest);
 
-	public EducationTermResponse mapEducationTermToEducationTermResponse(
-				EducationTerm educationTerm) {
-		return EducationTermResponse.builder()
-					       .id(educationTerm.getId())
-					       .term(educationTerm.getTerm())
-					       .startDate(educationTerm.getStartDate())
-					       .endDate(educationTerm.getEndDate())
-					       .lastRegistrationDate(educationTerm.getLastRegistrationDate())
-					       .build();
-	}
+	//TODO check the usage
+	EducationTerm updateEducationTermWithEducationTermRequest(
+				EducationTermRequest educationTermRequest,
+				@MappingTarget EducationTerm educationTerm);
 
-
+	EducationTermResponse mapEducationTermToEducationTermResponse(
+				EducationTerm educationTerm);
 }

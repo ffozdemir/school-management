@@ -1,17 +1,21 @@
 package com.ffozdemir.schoolmanagement.payload.mappers;
 
+import com.ffozdemir.schoolmanagement.entity.concretes.business.LessonProgram;
 import com.ffozdemir.schoolmanagement.entity.concretes.user.User;
 import com.ffozdemir.schoolmanagement.entity.enums.RoleType;
 import com.ffozdemir.schoolmanagement.exception.ResourceNotFoundException;
 import com.ffozdemir.schoolmanagement.payload.messages.ErrorMessages;
-import com.ffozdemir.schoolmanagement.payload.request.user.UserRequest;
+import com.ffozdemir.schoolmanagement.payload.request.abstracts.BaseUserRequest;
+import com.ffozdemir.schoolmanagement.payload.response.user.StudentResponse;
 import com.ffozdemir.schoolmanagement.payload.response.user.UserResponse;
 import com.ffozdemir.schoolmanagement.service.user.UserRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -27,7 +31,7 @@ public class UserMapper {
 	 */
 
 	public User mapUserRequestToUser(
-				UserRequest userRequest,
+				BaseUserRequest userRequest,
 				String userRole) {
 		User user = User.builder()
 					            .username(userRequest.getUsername())
@@ -83,7 +87,25 @@ public class UserMapper {
 					       .userRole(user.getUserRole()
 								                 .getRoleName())
 					       .build();
+	}
 
-
+	public StudentResponse mapUserToStudentResponse(
+				User student) {
+		return StudentResponse.builder()
+					       .id(student.getId())
+					       .username(student.getUsername())
+					       .name(student.getName())
+					       .surname(student.getSurname())
+					       .birthDay(student.getBirthday())
+					       .ssn(student.getSsn())
+					       .birthPlace(student.getBirthplace())
+					       .phoneNumber(student.getPhoneNumber())
+					       .gender(student.getGender())
+					       .email(student.getEmail())
+					       .studentNumber(student.getStudentNumber())
+					       .motherName(student.getMotherName())
+					       .fatherName(student.getFatherName())
+					       .lessonProgramList(new ArrayList<>(student.getLessonProgramList()))
+					       .build();
 	}
 }
