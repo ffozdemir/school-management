@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -90,5 +91,14 @@ public class LessonProgramService {
 					       .returnBody(lessonProgramMapper.mapLessonProgramToLessonProgramResponse(foundLesson))
 					       .httpStatus(HttpStatus.OK)
 					       .build();
+	}
+
+	public List<LessonProgram> getLessonProgramById(
+				List<Long> lessonIdList) {
+		List<LessonProgram> lessonProgramList = lessonProgramRepository.findAllById(lessonIdList);
+		if (lessonProgramList.isEmpty()) {
+			throw new ResourceNotFoundException(ErrorMessages.NOT_FOUND_LESSON_PROGRAM_MESSAGE_WITHOUT_ID_INFO);
+		}
+		return lessonProgramList;
 	}
 }

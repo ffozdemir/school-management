@@ -78,7 +78,7 @@ public class User {
 				joinColumns = @JoinColumn(name = "user_id"),
 				inverseJoinColumns = @JoinColumn(name = "lesson_program_id")
 	)
-	private Set<LessonProgram>lessonProgramList;
+	private List<LessonProgram>lessonProgramList;
 
 
 	@JsonIgnore
