@@ -17,9 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -93,8 +91,12 @@ public class LessonProgramService {
 					       .build();
 	}
 
+	//TODO pull request
 	public List<LessonProgram> getLessonProgramById(
 				List<Long> lessonIdList) {
+		for (Long lessonProgramId : lessonIdList) {
+			ifExistById(lessonProgramId);
+		}
 		List<LessonProgram> lessonProgramList = lessonProgramRepository.findAllById(lessonIdList);
 		if (lessonProgramList.isEmpty()) {
 			throw new ResourceNotFoundException(ErrorMessages.NOT_FOUND_LESSON_PROGRAM_MESSAGE_WITHOUT_ID_INFO);

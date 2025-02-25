@@ -31,6 +31,10 @@ public class AuthenticationService {
 				@Valid LoginRequest loginRequest) {
 		String username = loginRequest.getUsername();
 		String password = loginRequest.getPassword();
+
+		//check if user exists
+		methodHelper.loadByUsername(username);
+
 		//injection of security in service
 		Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
@@ -52,7 +56,5 @@ public class AuthenticationService {
 					       .role(userRole)
 					       .username(userDetails.getUsername())
 					       .build();
-
-
 	}
 }

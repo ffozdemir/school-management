@@ -1,6 +1,7 @@
 package com.ffozdemir.schoolmanagement.payload.messages;
 
 public class SuccessMessages {
+
 	private SuccessMessages() {
 	}
 
@@ -27,6 +28,9 @@ public class SuccessMessages {
 	//Teacher
 	public static final String TEACHER_SAVE = "Teacher is Saved";
 	public static final String TEACHER_UPDATE = "Teacher is Updated Successfully";
+	public static final String TEACHER_DELETE = "Teacher is Deleted Successfully";
+	public static final String TEACHER_LIST = "Teacher List is Fetched Successfully";
+
 
 	//Advisor teacher
 	public static final String ADVISOR_TEACHER_SAVE = "Advisor Teacher is Saved";

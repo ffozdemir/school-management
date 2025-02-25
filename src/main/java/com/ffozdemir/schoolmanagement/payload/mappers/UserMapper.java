@@ -6,6 +6,7 @@ import com.ffozdemir.schoolmanagement.entity.enums.RoleType;
 import com.ffozdemir.schoolmanagement.exception.ResourceNotFoundException;
 import com.ffozdemir.schoolmanagement.payload.messages.ErrorMessages;
 import com.ffozdemir.schoolmanagement.payload.request.abstracts.BaseUserRequest;
+import com.ffozdemir.schoolmanagement.payload.request.user.StudentUpdateRequest;
 import com.ffozdemir.schoolmanagement.payload.response.user.StudentResponse;
 import com.ffozdemir.schoolmanagement.payload.response.user.UserResponse;
 import com.ffozdemir.schoolmanagement.service.user.UserRoleService;
@@ -105,7 +106,25 @@ public class UserMapper {
 					       .studentNumber(student.getStudentNumber())
 					       .motherName(student.getMotherName())
 					       .fatherName(student.getFatherName())
-					       .lessonProgramList(new ArrayList<>(student.getLessonProgramList()))
+					       .lessonProgramList(student.getLessonProgramList())
+					       .build();
+	}
+
+	public User mapStudentUpdateRequestToUser(
+				StudentUpdateRequest studentUpdateRequest) {
+		return User.builder()
+					       .username(studentUpdateRequest.getUsername())
+					       .name(studentUpdateRequest.getName())
+					       .ssn(studentUpdateRequest.getSsn())
+					       .userRole(userRoleService.getUserRole(RoleType.STUDENT))
+					       .surname(studentUpdateRequest.getSurname())
+					       .birthday(studentUpdateRequest.getBirthDay())
+					       .birthplace(studentUpdateRequest.getBirthPlace())
+					       .phoneNumber(studentUpdateRequest.getPhoneNumber())
+					       .gender(studentUpdateRequest.getGender())
+					       .email(studentUpdateRequest.getEmail())
+					       .fatherName(studentUpdateRequest.getFatherName())
+					       .motherName(studentUpdateRequest.getMotherName())
 					       .build();
 	}
 }

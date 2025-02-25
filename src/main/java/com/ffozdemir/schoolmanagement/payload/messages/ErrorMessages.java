@@ -1,6 +1,7 @@
 package com.ffozdemir.schoolmanagement.payload.messages;
 
 public class ErrorMessages {
+
 	private ErrorMessages() {
 	}
 
@@ -47,6 +48,7 @@ public class ErrorMessages {
 	public static final String NOT_FOUND_LESSON_PROGRAM_MESSAGE = "Error: Lesson program with id, %s not found";
 	public static final String NOT_FOUND_LESSON_PROGRAM_MESSAGE_WITHOUT_ID_INFO = "Error: Lesson program with this field not found";
 	public static final String LESSON_PROGRAM_ALREADY_EXIST = "Error: Course schedule can not be selected for the same hour and date";
+	public static final String LESSON_PROGRAM_ALREADY_ADDED = "Error: Lesson program with id %s already added";
 
 	//meet
 	public static final String MEET_NOT_FOUND_MESSAGE = "Error: Meet with id %d not found";

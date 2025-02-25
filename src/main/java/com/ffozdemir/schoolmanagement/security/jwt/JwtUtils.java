@@ -16,6 +16,11 @@ public class JwtUtils {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtUtils.class);
 
 
+	//Generate JWT
+	//Validate JWT
+	//getUsername from JWT
+
+
 	@Value("${backendapi.app.jwtExpirationMs}")
 	private long jwtExpirations;
 

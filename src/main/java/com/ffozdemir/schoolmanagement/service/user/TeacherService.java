@@ -3,21 +3,31 @@ package com.ffozdemir.schoolmanagement.service.user;
 import com.ffozdemir.schoolmanagement.entity.concretes.business.LessonProgram;
 import com.ffozdemir.schoolmanagement.entity.concretes.user.User;
 import com.ffozdemir.schoolmanagement.entity.enums.RoleType;
+import com.ffozdemir.schoolmanagement.exception.ConflictException;
 import com.ffozdemir.schoolmanagement.payload.mappers.UserMapper;
+import com.ffozdemir.schoolmanagement.payload.messages.ErrorMessages;
 import com.ffozdemir.schoolmanagement.payload.messages.SuccessMessages;
+import com.ffozdemir.schoolmanagement.payload.request.business.AddLessonProgram;
 import com.ffozdemir.schoolmanagement.payload.request.user.TeacherRequest;
 import com.ffozdemir.schoolmanagement.payload.response.business.ResponseMessage;
+import com.ffozdemir.schoolmanagement.payload.response.user.StudentResponse;
 import com.ffozdemir.schoolmanagement.payload.response.user.UserResponse;
 import com.ffozdemir.schoolmanagement.repository.user.UserRepository;
 import com.ffozdemir.schoolmanagement.service.business.LessonProgramService;
 import com.ffozdemir.schoolmanagement.service.helper.MethodHelper;
+import com.ffozdemir.schoolmanagement.service.helper.PageableHelper;
 import com.ffozdemir.schoolmanagement.service.validator.UniquePropertyValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +38,7 @@ public class TeacherService {
 	private final MethodHelper methodHelper;
 	private final UniquePropertyValidator uniquePropertyValidator;
 	private final LessonProgramService lessonProgramService;
+	private final PageableHelper pageableHelper;
 
 	public ResponseMessage<UserResponse> saveTeacher(
 				@Valid TeacherRequest teacherRequest) {
@@ -44,5 +55,99 @@ public class TeacherService {
 					       .httpStatus(HttpStatus.CREATED)
 					       .returnBody(userMapper.mapUserToUserResponse(savedTeacher))
 					       .build();
+	}
+
+	public ResponseMessage<UserResponse> updateTeacherById(
+				@Valid TeacherRequest teacherRequest,
+				Long userId) {
+		//validate if teacher exist
+		User teacher = methodHelper.isUserExist(userId);
+		//validate if user is a teacher
+		methodHelper.checkUserRole(teacher, RoleType.TEACHER);
+		//validate unique property
+		uniquePropertyValidator.checkUniqueProperty(teacher, teacherRequest);
+		List<LessonProgram> lessonPrograms = lessonProgramService.getLessonProgramById(teacherRequest.getLessonProgramList());
+		User teacherToUpdate = userMapper.mapUserRequestToUser(teacherRequest, RoleType.TEACHER.getName());
+		//map missing props
+		teacherToUpdate.setId(userId);
+		teacherToUpdate.setLessonProgramList(lessonPrograms);
+		teacherToUpdate.setIsAdvisor(teacherRequest.getIsAdvisoryTeacher());
+		User savedTeacher = userRepository.save(teacherToUpdate);
+		return ResponseMessage.<UserResponse>builder()
+					       .message(SuccessMessages.TEACHER_UPDATE)
+					       .returnBody(userMapper.mapUserToUserResponse(savedTeacher))
+					       .httpStatus(HttpStatus.OK)
+					       .build();
+	}
+
+	public List<StudentResponse> getAllStudentByAdvisorTeacher(
+				HttpServletRequest httpServletRequest) {
+		String username = (String) httpServletRequest.getAttribute("username");
+		User teacher = methodHelper.loadByUsername(username);
+		methodHelper.checkIsAdvisor(teacher);
+		return userRepository.findByAdvisorTeacherId(teacher.getId())
+					       .stream()
+					       .map(userMapper::mapUserToStudentResponse)
+					       .collect(Collectors.toList());
+	}
+
+	public ResponseMessage<UserResponse> addLessonProgram(
+				@Valid AddLessonProgram lessonProgram) {
+		User teacher = methodHelper.isUserExist(lessonProgram.getTeacherId());
+		methodHelper.checkUserRole(teacher, RoleType.TEACHER);
+		List<LessonProgram> lessonPrograms = lessonProgramService.getLessonProgramById(lessonProgram.getLessonProgramId());
+		// 1,2,3 -> 3,4,5
+		// 1,2,3,3,4,5
+		//TODO prevent duplication of lesson programs
+		for (LessonProgram program : lessonPrograms) {
+			if (teacher.getLessonProgramList()
+						    .contains(program)) {
+				throw new ConflictException(String.format(ErrorMessages.LESSON_PROGRAM_ALREADY_ADDED, program.getId()));
+			}
+		}
+
+		teacher.getLessonProgramList()
+					.addAll(lessonPrograms);
+		User savedTeacher = userRepository.save(teacher);
+		return ResponseMessage.<UserResponse>builder()
+					       .message(SuccessMessages.LESSON_PROGRAM_ADD_TO_TEACHER)
+					       .returnBody(userMapper.mapUserToUserResponse(savedTeacher))
+					       .httpStatus(HttpStatus.OK)
+					       .build();
+	}
+
+	public ResponseMessage<List<UserResponse>> getAllByTeacher() {
+		List<User> teacherList = userRepository.getAllTeachers();
+		return ResponseMessage.<List<UserResponse>>builder()
+					       .message(SuccessMessages.TEACHER_LIST)
+					       .returnBody(teacherList.stream()
+								                   .map(userMapper::mapUserToUserResponse)
+								                   .collect(Collectors.toList()))
+					       .httpStatus(HttpStatus.OK)
+					       .build();
+	}
+
+	public Page<UserResponse> getAllTeacherByPage(
+				int page,
+				int size,
+				String sort,
+				String type) {
+		Pageable pageable = pageableHelper.getPageable(page, size, sort, type);
+		Page<User> teacherPage = userRepository.findAllTeacherByPage(RoleType.TEACHER.getName(), pageable);
+		return teacherPage.map(userMapper::mapUserToUserResponse);
+	}
+
+	@Transactional
+	public String deleteTeacherById(
+				Long teacherId) {
+		User teacher = methodHelper.isUserExist(teacherId);
+		methodHelper.checkUserRole(teacher, RoleType.TEACHER);
+		List<User> students = userRepository.findByAdvisorTeacherId(teacherId);
+		if (!students.isEmpty()) {
+			students.forEach(student->student.setAdvisorTeacherId(null));
+			userRepository.saveAll(students);
+		}
+		userRepository.delete(teacher);
+		return SuccessMessages.TEACHER_DELETE;
 	}
 }

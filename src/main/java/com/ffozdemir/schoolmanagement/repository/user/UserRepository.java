@@ -6,8 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -36,4 +37,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query("select max(u.studentNumber) from User u where u.userRole.roleType = 'STUDENT'")
 	int getMaxStudentNumber();
+
+	List<User> findByAdvisorTeacherId(
+				Long advisorTeacherId);
+
+	List<User> findByUserRole(
+				UserRole userRole);
+
+	@Query("select u from User u where u.userRole.roleType = 'TEACHER'")
+	List<User> getAllTeachers();
+
+	@Query("select u from User u where u.userRole.roleType = 'TEACHER'")
+	Page<User> findAllTeacherByPage(
+				String name,
+				Pageable pageable);
+
 }

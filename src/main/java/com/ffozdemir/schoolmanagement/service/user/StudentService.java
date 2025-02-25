@@ -5,6 +5,7 @@ import com.ffozdemir.schoolmanagement.entity.enums.RoleType;
 import com.ffozdemir.schoolmanagement.payload.mappers.UserMapper;
 import com.ffozdemir.schoolmanagement.payload.messages.SuccessMessages;
 import com.ffozdemir.schoolmanagement.payload.request.user.StudentRequest;
+import com.ffozdemir.schoolmanagement.payload.request.user.StudentUpdateRequest;
 import com.ffozdemir.schoolmanagement.payload.response.business.ResponseMessage;
 import com.ffozdemir.schoolmanagement.payload.response.user.StudentResponse;
 import com.ffozdemir.schoolmanagement.repository.user.UserRepository;
@@ -14,7 +15,11 @@ import com.ffozdemir.schoolmanagement.service.validator.TimeValidator;
 import com.ffozdemir.schoolmanagement.service.validator.UniquePropertyValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @Service
 @RequiredArgsConstructor
@@ -60,4 +65,18 @@ public class StudentService {
 	}
 
 
+	public String updateStudent(
+				HttpServletRequest httpServletRequest,
+				@Valid StudentUpdateRequest studentUpdateRequest) {
+		String username = (String) httpServletRequest.getAttribute("username");
+		User student = methodHelper.loadByUsername(username);
+		uniquePropertyValidator.checkUniqueProperty(student, studentUpdateRequest);
+		User userToUpdate = userMapper.mapStudentUpdateRequestToUser(studentUpdateRequest);
+		userToUpdate.setId(student.getId());
+		userToUpdate.setPassword(student.getPassword());
+		userToUpdate.setBuildIn(student.getBuildIn());
+		userToUpdate.setAdvisorTeacherId(student.getAdvisorTeacherId());
+		userRepository.save(userToUpdate);
+		return SuccessMessages.STUDENT_UPDATE;
+	}
 }
