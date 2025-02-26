@@ -6,6 +6,7 @@ import com.ffozdemir.schoolmanagement.entity.enums.RoleType;
 import com.ffozdemir.schoolmanagement.exception.ResourceNotFoundException;
 import com.ffozdemir.schoolmanagement.payload.messages.ErrorMessages;
 import com.ffozdemir.schoolmanagement.payload.request.abstracts.BaseUserRequest;
+import com.ffozdemir.schoolmanagement.payload.request.user.StudentRequest;
 import com.ffozdemir.schoolmanagement.payload.request.user.StudentUpdateRequest;
 import com.ffozdemir.schoolmanagement.payload.response.user.StudentResponse;
 import com.ffozdemir.schoolmanagement.payload.response.user.UserResponse;
@@ -116,7 +117,6 @@ public class UserMapper {
 					       .username(studentUpdateRequest.getUsername())
 					       .name(studentUpdateRequest.getName())
 					       .ssn(studentUpdateRequest.getSsn())
-					       .userRole(userRoleService.getUserRole(RoleType.STUDENT))
 					       .surname(studentUpdateRequest.getSurname())
 					       .birthday(studentUpdateRequest.getBirthDay())
 					       .birthplace(studentUpdateRequest.getBirthPlace())
@@ -125,6 +125,27 @@ public class UserMapper {
 					       .email(studentUpdateRequest.getEmail())
 					       .fatherName(studentUpdateRequest.getFatherName())
 					       .motherName(studentUpdateRequest.getMotherName())
+					       .build();
+	}
+
+	public User mapStudentRequestToUser(
+				StudentRequest studentRequest) {
+		return User.builder()
+					       .username(studentRequest.getUsername())
+					       .name(studentRequest.getName())
+					       .surname(studentRequest.getSurname())
+					       .password(passwordEncoder.encode(studentRequest.getPassword()))
+					       .birthday(studentRequest.getBirthDay())
+					       .ssn(studentRequest.getSsn())
+					       .birthplace(studentRequest.getBirthPlace())
+					       .phoneNumber(studentRequest.getPhoneNumber())
+					       .gender(studentRequest.getGender())
+					       .email(studentRequest.getEmail())
+					       .buildIn(false)
+					       .motherName(studentRequest.getMotherName())
+					       .fatherName(studentRequest.getFatherName())
+					       .advisorTeacherId(studentRequest.getAdvisorTeacherId())
+					       .userRole(userRoleService.getUserRole(RoleType.STUDENT))
 					       .build();
 	}
 }

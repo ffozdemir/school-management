@@ -51,5 +51,14 @@ public class LessonProgram {
 					                    .remove(this));
 	}
 
+	public LessonProgram(
+				Day day,
+				LocalTime startTime,
+				LocalTime stopTime) {
+		this.day = day;
+		this.startTime = startTime;
+		this.stopTime = stopTime;
+	}
+
 
 }

@@ -57,9 +57,9 @@ public class TeacherController {
 
 	@PreAuthorize("hasAnyAuthority('Admin')")
 	@DeleteMapping("/deleteTeacherById/{teacherId}")
-	public ResponseEntity<String> deleteTeacherById(
+	public ResponseMessage<UserResponse> deleteTeacherById(
 				@PathVariable Long teacherId) {
-		return ResponseEntity.ok(teacherService.deleteTeacherById(teacherId));
+		return teacherService.deleteTeacherById(teacherId);
 	}
 
 	@PreAuthorize("hasAnyAuthority('Admin', 'Dean', 'ViceDean')")

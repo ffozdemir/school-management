@@ -14,6 +14,7 @@ import com.ffozdemir.schoolmanagement.payload.response.user.StudentResponse;
 import com.ffozdemir.schoolmanagement.payload.response.user.UserResponse;
 import com.ffozdemir.schoolmanagement.repository.user.UserRepository;
 import com.ffozdemir.schoolmanagement.service.business.LessonProgramService;
+import com.ffozdemir.schoolmanagement.service.helper.LessonProgramDuplicationHelper;
 import com.ffozdemir.schoolmanagement.service.helper.MethodHelper;
 import com.ffozdemir.schoolmanagement.service.helper.PageableHelper;
 import com.ffozdemir.schoolmanagement.service.validator.UniquePropertyValidator;
@@ -39,6 +40,7 @@ public class TeacherService {
 	private final UniquePropertyValidator uniquePropertyValidator;
 	private final LessonProgramService lessonProgramService;
 	private final PageableHelper pageableHelper;
+	private final LessonProgramDuplicationHelper lessonProgramDuplicationHelper;
 
 	public ResponseMessage<UserResponse> saveTeacher(
 				@Valid TeacherRequest teacherRequest) {
@@ -137,7 +139,7 @@ public class TeacherService {
 		return teacherPage.map(userMapper::mapUserToUserResponse);
 	}
 
-	@Transactional
+	/*@Transactional
 	public String deleteTeacherById(
 				Long teacherId) {
 		User teacher = methodHelper.isUserExist(teacherId);
@@ -149,5 +151,20 @@ public class TeacherService {
 		}
 		userRepository.delete(teacher);
 		return SuccessMessages.TEACHER_DELETE;
+	}*/
+
+	@Transactional
+	public ResponseMessage<UserResponse> deleteTeacherById(Long teacherId) {
+		User teacher = methodHelper.isUserExist(teacherId);
+		methodHelper.checkUserRole(teacher,RoleType.TEACHER);
+
+		userRepository.removeAdvisorFromStudents(teacherId);
+		userRepository.delete(teacher);
+
+		return ResponseMessage.<UserResponse>builder()
+					       .message(SuccessMessages.ADVISOR_TEACHER_DELETE)
+					       .httpStatus(HttpStatus.OK)
+					       .build();
 	}
+
 }

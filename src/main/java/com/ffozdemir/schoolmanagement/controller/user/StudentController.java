@@ -1,5 +1,6 @@
 package com.ffozdemir.schoolmanagement.controller.user;
 
+import com.ffozdemir.schoolmanagement.payload.request.business.AddLessonProgramForStudent;
 import com.ffozdemir.schoolmanagement.payload.request.user.StudentRequest;
 import com.ffozdemir.schoolmanagement.payload.request.user.StudentUpdateRequest;
 import com.ffozdemir.schoolmanagement.payload.response.business.ResponseMessage;
@@ -33,6 +34,31 @@ public class StudentController {
 				HttpServletRequest httpServletRequest,
 				@RequestBody @Valid StudentUpdateRequest studentUpdateRequest) {
 		return ResponseEntity.ok(studentService.updateStudent(httpServletRequest, studentUpdateRequest));
+	}
+
+	@PreAuthorize("hasAnyAuthority('Admin')")
+	@PutMapping("/updateByAdmin/{studentId}")
+	public ResponseMessage<StudentResponse> updateStudentByManager(
+				@PathVariable Long studentId,
+				@RequestBody @Valid StudentRequest studentRequest) {
+		return studentService.updateStudentByManager(studentId, studentRequest);
+	}
+
+	//TODO
+	@PreAuthorize("hasAnyAuthority('Admin', 'Dean', 'ViceDean')")
+	@GetMapping("/changeStatus")
+	public ResponseMessage changeStatus(@RequestParam Long studentId , @RequestParam boolean status) {
+		//return studentService.changeStatus(studentId);
+		return null;
+	}
+
+	@PreAuthorize("hasAnyAuthority('Student')")
+	@GetMapping("/addLessonProgram")
+	public ResponseMessage<StudentResponse> addLessonProgram(
+				HttpServletRequest httpServletRequest,
+				@RequestBody
+				AddLessonProgramForStudent addLessonProgramForStudent) {
+		return studentService.addLessonProgram(httpServletRequest, addLessonProgramForStudent);
 	}
 
 

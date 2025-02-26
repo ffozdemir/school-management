@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class MethodHelper {
@@ -54,4 +56,11 @@ public class MethodHelper {
 			throw new BadRequestException(String.format(ErrorMessages.NOT_ADVISOR_TEACHER_MESSAGE, user.getId()));
 		}
 	}
+
+
+	public List<User> getUserList(
+				List<Long> userIdList) {
+		return userRepository.findByUserIdList(userIdList);
+	}
+
 }
