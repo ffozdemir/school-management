@@ -13,7 +13,10 @@ import com.ffozdemir.schoolmanagement.service.helper.MethodHelper;
 import com.ffozdemir.schoolmanagement.service.helper.PageableHelper;
 import com.ffozdemir.schoolmanagement.service.validator.TimeValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -79,5 +82,22 @@ public class MeetingService {
 					       .returnBody(meetingMapper.mapMeetingToMeetingResponse(updatedMeeting))
 					       .httpStatus(HttpStatus.OK)
 					       .build();
+	}
+
+	public ResponseEntity<ResponseMessage<Page<MeetingResponse>>> getAllByPageTeacher(
+				int page, int size,
+				HttpServletRequest httpServletRequest) {
+		String username = (String) httpServletRequest.getAttribute("username");
+		User teacher = methodHelper.loadByUsername(username);
+		Pageable pageable = pageableHelper.getPageableByPageAndSize(page, size);
+		Page<Meet> meetings = meetingRepository.findByAdvisoryTeacher_Id(teacher.getId(), pageable);
+		Page<MeetingResponse> meetingResponses = meetings.map(meetingMapper::mapMeetingToMeetingResponse);
+		ResponseMessage<Page<MeetingResponse>> responseMessage =
+					ResponseMessage.<Page<MeetingResponse>>builder()
+								.message(SuccessMessages.MEET_FOUND)
+								.returnBody(meetingResponses)
+								.httpStatus(HttpStatus.OK)
+								.build();
+		return ResponseEntity.status(responseMessage.getHttpStatus()).body(responseMessage);
 	}
 }

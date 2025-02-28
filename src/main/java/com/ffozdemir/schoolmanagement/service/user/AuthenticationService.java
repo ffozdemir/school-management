@@ -1,12 +1,17 @@
 package com.ffozdemir.schoolmanagement.service.user;
 
+import com.ffozdemir.schoolmanagement.entity.concretes.user.User;
+import com.ffozdemir.schoolmanagement.exception.BadRequestException;
+import com.ffozdemir.schoolmanagement.payload.messages.ErrorMessages;
 import com.ffozdemir.schoolmanagement.payload.request.authentication.LoginRequest;
+import com.ffozdemir.schoolmanagement.payload.request.authentication.UpdatePasswordRequest;
 import com.ffozdemir.schoolmanagement.payload.response.authentication.AuthenticationResponse;
 import com.ffozdemir.schoolmanagement.repository.user.UserRepository;
 import com.ffozdemir.schoolmanagement.security.jwt.JwtUtils;
 import com.ffozdemir.schoolmanagement.security.service.UserDetailsImpl;
 import com.ffozdemir.schoolmanagement.service.helper.MethodHelper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @Service
@@ -56,5 +62,21 @@ public class AuthenticationService {
 					       .role(userRole)
 					       .username(userDetails.getUsername())
 					       .build();
+	}
+
+	public void changePassword(
+				@Valid UpdatePasswordRequest updatePasswordRequest,
+				HttpServletRequest httpServletRequest) {
+		String username = (String) httpServletRequest.getAttribute("username");
+		User user = methodHelper.loadByUsername(username);
+		methodHelper.checkBuildIn(user);
+		//validate new password does not match with old password
+		if (passwordEncoder.matches(updatePasswordRequest.getNewPassword(), user.getPassword())) {
+			throw new BadRequestException(ErrorMessages.PASSWORD_SHOULD_NOT_MATCHED);
+		}
+		//user password can be updated via custom query
+		//or password can be set and user will be saved to DB again
+		user.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
+		userRepository.save(user);
 	}
 }
