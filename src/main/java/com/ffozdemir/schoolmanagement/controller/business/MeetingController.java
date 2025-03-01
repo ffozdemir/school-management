@@ -42,40 +42,36 @@ public class MeetingController {
 	}
 
 
-	//TODO furkan
 	@PreAuthorize("hasAnyAuthority('Admin','Teacher')")
 	@DeleteMapping("/delete/{meetingId}")
-	public ResponseMessage deleteById(@PathVariable Long meetingId){
-		//return meetingService.deleteById(meetingId);
-		return null;
+	public ResponseEntity<String> deleteById(
+				@PathVariable Long meetingId,
+				HttpServletRequest httpServletRequest) {
+		return ResponseEntity.ok(meetingService.deleteById(meetingId, httpServletRequest));
 	}
 
-	//TODO neslihan KONTROL ETMEM LAZIM
 	@PreAuthorize("hasAnyAuthority('Teacher')")
 	@GetMapping("/getAllByPageTeacher")
 	public ResponseEntity<ResponseMessage<Page<MeetingResponse>>> getAllByPageTeacher(
 				HttpServletRequest httpServletRequest,
-				@RequestParam(value = "page",defaultValue = "0") int page,
-				@RequestParam(value = "size",defaultValue = "10") int size){
-		return meetingService.getAllByPageTeacher(page,size,httpServletRequest);
+				@RequestParam(value = "page", defaultValue = "0") int page,
+				@RequestParam(value = "size", defaultValue = "10") int size) {
+		return ResponseEntity.ok(meetingService.getAllByPageTeacher(page, size, httpServletRequest));
 	}
 
-	//TODO edip
 	@PreAuthorize("hasAnyAuthority('Teacher','Student')")
 	@GetMapping("/getAll")
-	public List<MeetingResponse> getAllMeetings(HttpServletRequest httpServletRequest){
-		//return meetingService.getAll(httpServletRequest);
-		return null;
+	public List<MeetingResponse> getAllMeetings(
+				HttpServletRequest httpServletRequest) {
+		return meetingService.getAll(httpServletRequest);
 	}
 
-	//TODO ismail
 	@PreAuthorize("hasAnyAuthority('Admin')")
 	@GetMapping("/getAllByPage")
-	public Page<MeetingResponse>getAllByPage(
+	public Page<MeetingResponse> getAllByPage(
 				@RequestParam(value = "page") int page,
-				@RequestParam(value = "size") int size){
-		//return meetingService.getAllByPage(page, size);
-		return null;
+				@RequestParam(value = "size") int size) {
+		return meetingService.getAllByPage(page, size);
 	}
 
 }

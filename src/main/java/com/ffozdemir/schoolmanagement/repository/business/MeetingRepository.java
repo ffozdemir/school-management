@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -20,4 +21,7 @@ public interface MeetingRepository extends JpaRepository<Meet, Long> {
 	Page<Meet> findByAdvisoryTeacher_Id(
 				Long teacherId,
 				Pageable pageable);
+
+	List<Meet> findByAdvisoryTeacher_Id(
+				Long advisoryTeacherId);
 }

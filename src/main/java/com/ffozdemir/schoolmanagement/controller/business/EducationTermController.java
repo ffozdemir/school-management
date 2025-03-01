@@ -1,6 +1,7 @@
 package com.ffozdemir.schoolmanagement.controller.business;
 
 import com.ffozdemir.schoolmanagement.payload.request.business.EducationTermRequest;
+import com.ffozdemir.schoolmanagement.payload.request.business.EducationTermUpdateRequest;
 import com.ffozdemir.schoolmanagement.payload.response.business.EducationTermResponse;
 import com.ffozdemir.schoolmanagement.payload.response.business.ResponseMessage;
 import com.ffozdemir.schoolmanagement.service.business.EducationTermService;
@@ -29,9 +30,9 @@ public class EducationTermController {
 	@PreAuthorize("hasAnyAuthority('Admin','Dean','ViceDean','Teacher')")
 	@PutMapping("/update/{educationTermId}")
 	public ResponseMessage<EducationTermResponse> updateEducationTerm(
-				@Valid @RequestBody EducationTermRequest educationTermRequest,
+				@Valid @RequestBody EducationTermUpdateRequest educationTermUpdateRequest,
 				@PathVariable Long educationTermId) {
-		return educationTermService.updateEducationTerm(educationTermRequest, educationTermId);
+		return educationTermService.updateEducationTerm(educationTermUpdateRequest, educationTermId);
 	}
 
 

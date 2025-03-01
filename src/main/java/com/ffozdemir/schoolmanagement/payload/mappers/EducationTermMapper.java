@@ -2,6 +2,7 @@ package com.ffozdemir.schoolmanagement.payload.mappers;
 
 import com.ffozdemir.schoolmanagement.entity.concretes.business.EducationTerm;
 import com.ffozdemir.schoolmanagement.payload.request.business.EducationTermRequest;
+import com.ffozdemir.schoolmanagement.payload.request.business.EducationTermUpdateRequest;
 import com.ffozdemir.schoolmanagement.payload.response.business.EducationTermResponse;
 import org.mapstruct.*;
 
@@ -15,9 +16,8 @@ public interface EducationTermMapper {
 	EducationTerm mapEducationTermRequestToEducationTerm(
 				EducationTermRequest educationTermRequest);
 
-	//TODO check the usage
-	EducationTerm updateEducationTermWithEducationTermRequest(
-				EducationTermRequest educationTermRequest,
+	EducationTerm updateEducationTermWithEducationTermUpdateRequest(
+				EducationTermUpdateRequest educationTermRequest,
 				@MappingTarget EducationTerm educationTerm);
 
 	EducationTermResponse mapEducationTermToEducationTermResponse(

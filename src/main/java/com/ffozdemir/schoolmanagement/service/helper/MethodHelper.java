@@ -1,5 +1,6 @@
 package com.ffozdemir.schoolmanagement.service.helper;
 
+import com.ffozdemir.schoolmanagement.entity.concretes.business.StudentInfo;
 import com.ffozdemir.schoolmanagement.entity.concretes.user.User;
 import com.ffozdemir.schoolmanagement.entity.enums.RoleType;
 import com.ffozdemir.schoolmanagement.exception.BadRequestException;

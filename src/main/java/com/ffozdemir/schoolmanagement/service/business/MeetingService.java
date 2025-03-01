@@ -3,6 +3,7 @@ package com.ffozdemir.schoolmanagement.service.business;
 import com.ffozdemir.schoolmanagement.entity.concretes.business.Meet;
 import com.ffozdemir.schoolmanagement.entity.concretes.user.User;
 import com.ffozdemir.schoolmanagement.payload.mappers.MeetingMapper;
+import com.ffozdemir.schoolmanagement.payload.messages.ErrorMessages;
 import com.ffozdemir.schoolmanagement.payload.messages.SuccessMessages;
 import com.ffozdemir.schoolmanagement.payload.request.business.MeetingRequest;
 import com.ffozdemir.schoolmanagement.payload.response.business.MeetingResponse;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -84,20 +86,64 @@ public class MeetingService {
 					       .build();
 	}
 
-	public ResponseEntity<ResponseMessage<Page<MeetingResponse>>> getAllByPageTeacher(
-				int page, int size,
+	public ResponseMessage<Page<MeetingResponse>> getAllByPageTeacher(
+				int page,
+				int size,
 				HttpServletRequest httpServletRequest) {
 		String username = (String) httpServletRequest.getAttribute("username");
 		User teacher = methodHelper.loadByUsername(username);
+		methodHelper.checkIsAdvisor(teacher);
 		Pageable pageable = pageableHelper.getPageableByPageAndSize(page, size);
 		Page<Meet> meetings = meetingRepository.findByAdvisoryTeacher_Id(teacher.getId(), pageable);
 		Page<MeetingResponse> meetingResponses = meetings.map(meetingMapper::mapMeetingToMeetingResponse);
-		ResponseMessage<Page<MeetingResponse>> responseMessage =
-					ResponseMessage.<Page<MeetingResponse>>builder()
-								.message(SuccessMessages.MEET_FOUND)
-								.returnBody(meetingResponses)
-								.httpStatus(HttpStatus.OK)
-								.build();
-		return ResponseEntity.status(responseMessage.getHttpStatus()).body(responseMessage);
+		return ResponseMessage.<Page<MeetingResponse>>builder()
+					       .message(meetings.isEmpty() ? ErrorMessages.MEET_NOT_FOUND_MESSAGE : SuccessMessages.MEET_FOUND)
+					       .returnBody(meetingResponses)
+					       .httpStatus(HttpStatus.OK)
+					       .build();
+	}
+
+	public String deleteById(
+				Long meetingId,
+				HttpServletRequest httpServletRequest) {
+		//validations
+		Meet existingMeeting = meetingHelper.isMeetingExistById(meetingId);
+		String username = (String) httpServletRequest.getAttribute("username");
+		User user = methodHelper.loadByUsername(username);
+		if (!user.getUserRole()
+					     .getRoleName()
+					     .equalsIgnoreCase("Admin")) {
+			meetingHelper.isMeetingMatchedWithTeacher(existingMeeting, httpServletRequest);
+		}
+		//delete
+		meetingRepository.deleteById(meetingId);
+		return SuccessMessages.MEET_DELETE;
+	}
+
+	public List<MeetingResponse> getAll(
+				HttpServletRequest httpServletRequest) {
+		String username = (String) httpServletRequest.getAttribute("username");
+		User user = methodHelper.loadByUsername(username);
+		if (user.getUserRole()
+					    .getRoleName()
+					    .equalsIgnoreCase("Teacher")) {
+			methodHelper.checkIsAdvisor(user);
+			return meetingRepository.findByAdvisoryTeacher_Id((user.getId()))
+						       .stream()
+						       .map(meetingMapper::mapMeetingToMeetingResponse)
+						       .collect(Collectors.toList());
+		}
+		return meetingRepository.findByStudentList_IdEquals(user.getId())
+					       .stream()
+					       .map(meetingMapper::mapMeetingToMeetingResponse)
+					       .collect(Collectors.toList());
+	}
+
+	public Page<MeetingResponse> getAllByPage(
+				int page,
+				int size) {
+		Pageable pageable = pageableHelper.getPageableByPageAndSize(page, size);
+		Page<Meet> meetings = meetingRepository.findAll(pageable);
+		return meetings.map(meetingMapper::mapMeetingToMeetingResponse);
 	}
 }

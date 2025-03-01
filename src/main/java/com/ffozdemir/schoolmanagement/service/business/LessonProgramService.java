@@ -91,7 +91,6 @@ public class LessonProgramService {
 					       .build();
 	}
 
-	//TODO pull request
 	public List<LessonProgram> getLessonProgramById(
 				List<Long> lessonIdList) {
 		for (Long lessonProgramId : lessonIdList) {

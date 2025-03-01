@@ -8,6 +8,7 @@ import com.ffozdemir.schoolmanagement.payload.mappers.EducationTermMapper;
 import com.ffozdemir.schoolmanagement.payload.messages.ErrorMessages;
 import com.ffozdemir.schoolmanagement.payload.messages.SuccessMessages;
 import com.ffozdemir.schoolmanagement.payload.request.business.EducationTermRequest;
+import com.ffozdemir.schoolmanagement.payload.request.business.EducationTermUpdateRequest;
 import com.ffozdemir.schoolmanagement.payload.response.business.EducationTermResponse;
 import com.ffozdemir.schoolmanagement.payload.response.business.ResponseMessage;
 import com.ffozdemir.schoolmanagement.repository.business.EducationTermRepository;
@@ -57,6 +58,7 @@ public class EducationTermService {
 		educationTermRepository.findByYear(educationTermRequest.getStartDate()
 					                                   .getYear())
 					.forEach(educationTerm->{
+						//TODO: Exclamation mark (!) might need to be moved to the next expression.
 						if (!educationTerm.getStartDate()
 									     .isAfter((educationTermRequest.getEndDate())) || educationTerm.getEndDate()
 												                                                      .isBefore(educationTermRequest.getStartDate())) {
@@ -90,21 +92,42 @@ public class EducationTermService {
 	}
 
 	public ResponseMessage<EducationTermResponse> updateEducationTerm(
-				@Valid EducationTermRequest educationTermRequest,
+				@Valid EducationTermUpdateRequest educationTermRequest,
 				Long educationTermId) {
 		//check if education term exist
-		isEducationTermExist(educationTermId);
+		EducationTerm foundEducationTerm = isEducationTermExist(educationTermId);
+		//update entity with partial/whole new data
+		EducationTerm updatedEducationTerm = educationTermMapper.updateEducationTermWithEducationTermUpdateRequest(educationTermRequest, foundEducationTerm);
 		//validate dates
-		validateEducationTermDatesForRequest(educationTermRequest);
-		//mapping
-		EducationTerm term = educationTermMapper.mapEducationTermRequestToEducationTerm(educationTermRequest);
-		term.setId(educationTermId);
-		//return by mapping it to DTO
+		validateEducationTermDatesForPartialUpdate(updatedEducationTerm);
+		//since it has passed the validation, we can now save it into DB
+		// and return by mapping it to responseDTO
 		return ResponseMessage.<EducationTermResponse>builder()
 					       .message(SuccessMessages.EDUCATION_TERM_UPDATE)
-					       .returnBody(educationTermMapper.mapEducationTermToEducationTermResponse(educationTermRepository.save(term)))
+					       .returnBody(educationTermMapper.mapEducationTermToEducationTermResponse(educationTermRepository.save(updatedEducationTerm)))
 					       .httpStatus(HttpStatus.OK)
 					       .build();
+	}
+
+	/**
+	 * For partial update, we need the whole entity to be able to validate dates.
+	 * For example; if the user wants to update only the startDate, then we need to acquire the endDate from the existing entity.
+	 * That's why, we map the updateDTO to updatedEntity first, then validate its dates with this method.
+	 *
+	 * @param educationTerm updated entity object
+	 */
+	private void validateEducationTermDatesForPartialUpdate(
+				EducationTerm educationTerm) {
+		//reg<start
+		if (educationTerm.getLastRegistrationDate()
+					    .isAfter(educationTerm.getStartDate())) {
+			throw new ConflictException(ErrorMessages.EDUCATION_START_DATE_IS_EARLIER_THAN_LAST_REGISTRATION_DATE);
+		}
+		//end>start
+		if (educationTerm.getEndDate()
+					    .isBefore(educationTerm.getStartDate())) {
+			throw new ConflictException(ErrorMessages.EDUCATION_END_DATE_IS_EARLIER_THAN_START_DATE);
+		}
 	}
 
 	public EducationTerm isEducationTermExist(

@@ -63,7 +63,7 @@ public class AuthenticationService {
 					       .username(userDetails.getUsername())
 					       .build();
 	}
-
+		//TODO can be improved by adding last 3 password check
 	public void changePassword(
 				@Valid UpdatePasswordRequest updatePasswordRequest,
 				HttpServletRequest httpServletRequest) {
