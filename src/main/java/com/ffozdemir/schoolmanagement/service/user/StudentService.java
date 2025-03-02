@@ -16,7 +16,6 @@ import com.ffozdemir.schoolmanagement.repository.user.UserRepository;
 import com.ffozdemir.schoolmanagement.service.business.LessonProgramService;
 import com.ffozdemir.schoolmanagement.service.helper.LessonProgramDuplicationHelper;
 import com.ffozdemir.schoolmanagement.service.helper.MethodHelper;
-import com.ffozdemir.schoolmanagement.service.validator.TimeValidator;
 import com.ffozdemir.schoolmanagement.service.validator.UniquePropertyValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,7 +34,6 @@ public class StudentService {
 	private final UserMapper userMapper;
 	private final UserRepository userRepository;
 	private final LessonProgramService lessonProgramService;
-	private final TimeValidator timeValidator;
 	private final LessonProgramDuplicationHelper lessonProgramDuplicationHelper;
 
 	public ResponseMessage<StudentResponse> save(
@@ -120,11 +118,11 @@ public class StudentService {
 			throw new BadRequestException(ErrorMessages.STUDENT_NOT_ACTIVE);
 		}
 		//new lesson program from request
-		List<LessonProgram> lessonProgramFromDb = lessonProgramService.getLessonProgramById(addLessonProgramForStudent.getLessonProgramId());
+		List<LessonProgram> lessonProgramFromDto = lessonProgramService.getLessonProgramById(addLessonProgramForStudent.getLessonProgramId());
 		//existing lesson programs of student
 		List<LessonProgram> studentLessonProgram = loggedInUser.getLessonProgramList();
 		//check duplication and add new lesson programs
-		studentLessonProgram.addAll(lessonProgramDuplicationHelper.removeDuplicates(studentLessonProgram, lessonProgramFromDb));
+		studentLessonProgram.addAll(lessonProgramDuplicationHelper.removeDuplicates(studentLessonProgram, lessonProgramFromDto));
 		return ResponseMessage.<StudentResponse>builder()
 					       .message(SuccessMessages.LESSON_PROGRAM_ADD_TO_STUDENT)
 					       .returnBody(userMapper.mapUserToStudentResponse(userRepository.save(loggedInUser)))

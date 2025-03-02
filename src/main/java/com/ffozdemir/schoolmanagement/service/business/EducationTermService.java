@@ -58,9 +58,8 @@ public class EducationTermService {
 		educationTermRepository.findByYear(educationTermRequest.getStartDate()
 					                                   .getYear())
 					.forEach(educationTerm->{
-						//TODO: Exclamation mark (!) might need to be moved to the next expression.
-						if (!educationTerm.getStartDate()
-									     .isAfter((educationTermRequest.getEndDate())) || educationTerm.getEndDate()
+						if (educationTerm.getStartDate()
+									     .isAfter((educationTermRequest.getEndDate())) || !educationTerm.getEndDate()
 												                                                      .isBefore(educationTermRequest.getStartDate())) {
 							throw new BadRequestException(ErrorMessages.EDUCATION_TERM_CONFLICT_MESSAGE);
 						}
