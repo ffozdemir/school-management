@@ -12,6 +12,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 @SpringBootApplication
@@ -40,41 +41,22 @@ public class SchoolManagementApplication implements CommandLineRunner {
 				String... args) throws Exception {
 		if (userRoleService.getAllUserRoles()
 					    .isEmpty()) {
-			//admin
-			UserRole admin = new UserRole();
-			admin.setRoleType(RoleType.ADMIN);
-			admin.setRoleName(RoleType.ADMIN.getName());
-			userRoleRepository.save(admin);
-
-			//dean
-			UserRole dean = new UserRole();
-			dean.setRoleType(RoleType.MANAGER);
-			dean.setRoleName(RoleType.MANAGER.getName());
-			userRoleRepository.save(dean);
-
-			//vice dean
-			UserRole viceDean = new UserRole();
-			viceDean.setRoleType(RoleType.ASSISTANT_MANAGER);
-			viceDean.setRoleName(RoleType.ASSISTANT_MANAGER.getName());
-			userRoleRepository.save(viceDean);
-
-			//student
-			UserRole student = new UserRole();
-			student.setRoleType(RoleType.STUDENT);
-			student.setRoleName(RoleType.STUDENT.getName());
-			userRoleRepository.save(student);
-
-			//teacher
-			UserRole teacher = new UserRole();
-			teacher.setRoleType(RoleType.TEACHER);
-			teacher.setRoleName(RoleType.TEACHER.getName());
-			userRoleRepository.save(teacher);
+			List<UserRole> userRoles = Arrays.asList(createUserRole(RoleType.ADMIN), createUserRole(RoleType.MANAGER), createUserRole(RoleType.ASSISTANT_MANAGER), createUserRole(RoleType.STUDENT), createUserRole(RoleType.TEACHER));
+			userRoleRepository.saveAll(userRoles);
 		}
 		if (userService.getAllUsers()
 					    .isEmpty()) {
 			userService.saveUser(getUserRequest(), RoleType.ADMIN.getName());
 		}
 
+	}
+
+	private UserRole createUserRole(
+				RoleType roleType) {
+		UserRole userRole = new UserRole();
+		userRole.setRoleType(roleType);
+		userRole.setRoleName(roleType.getName());
+		return userRole;
 	}
 
 	private static UserRequest getUserRequest() {
