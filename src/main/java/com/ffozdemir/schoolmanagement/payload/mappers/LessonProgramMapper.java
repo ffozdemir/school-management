@@ -8,7 +8,6 @@ import com.ffozdemir.schoolmanagement.payload.response.business.LessonProgramRes
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class LessonProgramMapper {

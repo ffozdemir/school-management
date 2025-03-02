@@ -2,6 +2,7 @@ package com.ffozdemir.schoolmanagement.payload.messages;
 
 public class ErrorMessages {
 
+
 	private ErrorMessages() {
 	}
 
@@ -15,6 +16,7 @@ public class ErrorMessages {
 
 	//student
 	public static final String STUDENT_INFO_NOT_FOUND = "Error: Student Info with id %d not found";
+	public static final String STUDENT_NOT_ACTIVE = "Error: Student is not active";
 
 	//advisor teacher
 	public static final String NOT_FOUND_ADVISOR_MESSAGE = "Error: Advisor Teacher with id %s not found";

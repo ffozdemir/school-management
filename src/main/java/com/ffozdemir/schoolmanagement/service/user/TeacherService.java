@@ -3,9 +3,7 @@ package com.ffozdemir.schoolmanagement.service.user;
 import com.ffozdemir.schoolmanagement.entity.concretes.business.LessonProgram;
 import com.ffozdemir.schoolmanagement.entity.concretes.user.User;
 import com.ffozdemir.schoolmanagement.entity.enums.RoleType;
-import com.ffozdemir.schoolmanagement.exception.ConflictException;
 import com.ffozdemir.schoolmanagement.payload.mappers.UserMapper;
-import com.ffozdemir.schoolmanagement.payload.messages.ErrorMessages;
 import com.ffozdemir.schoolmanagement.payload.messages.SuccessMessages;
 import com.ffozdemir.schoolmanagement.payload.request.business.AddLessonProgram;
 import com.ffozdemir.schoolmanagement.payload.request.user.TeacherRequest;
@@ -98,18 +96,14 @@ public class TeacherService {
 		User teacher = methodHelper.isUserExist(lessonProgram.getTeacherId());
 		methodHelper.checkUserRole(teacher, RoleType.TEACHER);
 		List<LessonProgram> lessonPrograms = lessonProgramService.getLessonProgramById(lessonProgram.getLessonProgramId());
-		// 1,2,3 -> 3,4,5
-		// 1,2,3,3,4,5
-		//TODO prevent duplication of lesson programs
-		for (LessonProgram program : lessonPrograms) {
-			if (teacher.getLessonProgramList()
-						    .contains(program)) {
-				throw new ConflictException(String.format(ErrorMessages.LESSON_PROGRAM_ALREADY_ADDED, program.getId()));
-			}
-		}
+
+
+		// checking and removing duplicates
+		List<LessonProgram> existingLessonPrograms = teacher.getLessonProgramList();
+		List<LessonProgram> newLessonProgram = lessonProgramDuplicationHelper.removeDuplicates(existingLessonPrograms, lessonPrograms);
 
 		teacher.getLessonProgramList()
-					.addAll(lessonPrograms);
+					.addAll(newLessonProgram);
 		User savedTeacher = userRepository.save(teacher);
 		return ResponseMessage.<UserResponse>builder()
 					       .message(SuccessMessages.LESSON_PROGRAM_ADD_TO_TEACHER)

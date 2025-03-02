@@ -46,16 +46,17 @@ public class StudentController {
 
 	@PreAuthorize("hasAnyAuthority('Admin', 'Dean', 'ViceDean')")
 	@PutMapping("/changeStatus")
-	public ResponseMessage changeStatus(@RequestParam Long studentId , @RequestParam boolean status) {
-		return studentService.changeStatus(studentId, status);
+	public ResponseEntity<String> changeStatus(
+				@RequestParam Long studentId,
+				@RequestParam boolean status) {
+		return ResponseEntity.ok(studentService.changeStatus(studentId, status));
 	}
 
 	@PreAuthorize("hasAnyAuthority('Student')")
-	@GetMapping("/addLessonProgram")
+	@PutMapping("/addLessonProgram")
 	public ResponseMessage<StudentResponse> addLessonProgram(
 				HttpServletRequest httpServletRequest,
-				@RequestBody
-				AddLessonProgramForStudent addLessonProgramForStudent) {
+				@RequestBody AddLessonProgramForStudent addLessonProgramForStudent) {
 		return studentService.addLessonProgram(httpServletRequest, addLessonProgramForStudent);
 	}
 

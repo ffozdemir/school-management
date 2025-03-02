@@ -3,7 +3,9 @@ package com.ffozdemir.schoolmanagement.service.user;
 import com.ffozdemir.schoolmanagement.entity.concretes.business.LessonProgram;
 import com.ffozdemir.schoolmanagement.entity.concretes.user.User;
 import com.ffozdemir.schoolmanagement.entity.enums.RoleType;
+import com.ffozdemir.schoolmanagement.exception.BadRequestException;
 import com.ffozdemir.schoolmanagement.payload.mappers.UserMapper;
+import com.ffozdemir.schoolmanagement.payload.messages.ErrorMessages;
 import com.ffozdemir.schoolmanagement.payload.messages.SuccessMessages;
 import com.ffozdemir.schoolmanagement.payload.request.business.AddLessonProgramForStudent;
 import com.ffozdemir.schoolmanagement.payload.request.user.StudentRequest;
@@ -12,6 +14,7 @@ import com.ffozdemir.schoolmanagement.payload.response.business.ResponseMessage;
 import com.ffozdemir.schoolmanagement.payload.response.user.StudentResponse;
 import com.ffozdemir.schoolmanagement.repository.user.UserRepository;
 import com.ffozdemir.schoolmanagement.service.business.LessonProgramService;
+import com.ffozdemir.schoolmanagement.service.helper.LessonProgramDuplicationHelper;
 import com.ffozdemir.schoolmanagement.service.helper.MethodHelper;
 import com.ffozdemir.schoolmanagement.service.validator.TimeValidator;
 import com.ffozdemir.schoolmanagement.service.validator.UniquePropertyValidator;
@@ -33,6 +36,7 @@ public class StudentService {
 	private final UserRepository userRepository;
 	private final LessonProgramService lessonProgramService;
 	private final TimeValidator timeValidator;
+	private final LessonProgramDuplicationHelper lessonProgramDuplicationHelper;
 
 	public ResponseMessage<StudentResponse> save(
 				StudentRequest studentRequest) {
@@ -112,26 +116,29 @@ public class StudentService {
 				AddLessonProgramForStudent addLessonProgramForStudent) {
 		String username = (String) httpServletRequest.getAttribute("username");
 		User loggedInUser = methodHelper.loadByUsername(username);
+		if (!loggedInUser.isActive()) {
+			throw new BadRequestException(ErrorMessages.STUDENT_NOT_ACTIVE);
+		}
 		//new lesson program from request
 		List<LessonProgram> lessonProgramFromDb = lessonProgramService.getLessonProgramById(addLessonProgramForStudent.getLessonProgramId());
 		//existing lesson programs of student
 		List<LessonProgram> studentLessonProgram = loggedInUser.getLessonProgramList();
-		//TODO user LessonProgramDuplicationHelper here
-		studentLessonProgram.addAll(lessonProgramFromDb);
-		return null;
+		//check duplication and add new lesson programs
+		studentLessonProgram.addAll(lessonProgramDuplicationHelper.removeDuplicates(studentLessonProgram, lessonProgramFromDb));
+		return ResponseMessage.<StudentResponse>builder()
+					       .message(SuccessMessages.LESSON_PROGRAM_ADD_TO_STUDENT)
+					       .returnBody(userMapper.mapUserToStudentResponse(userRepository.save(loggedInUser)))
+					       .httpStatus(HttpStatus.OK)
+					       .build();
 	}
 
-	public ResponseMessage changeStatus(
+	public String changeStatus(
 				Long studentId,
 				boolean status) {
 		User student = methodHelper.isUserExist(studentId);
 		methodHelper.checkUserRole(student, RoleType.STUDENT);
 		student.setActive(status);
-		User updateStudentUser = userRepository.save(student);
-		return ResponseMessage.<StudentResponse>builder()
-					       .message(SuccessMessages.STUDENT_UPDATE)
-					       .returnBody(userMapper.mapUserToStudentResponse(updateStudentUser))
-					       .httpStatus(HttpStatus.OK)
-					       .build();
+		userRepository.save(student);
+		return SuccessMessages.STUDENT_UPDATE;
 	}
 }
