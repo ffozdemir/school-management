@@ -15,36 +15,24 @@ public class UniquePropertyValidator {
 	private final UserRepository userRepository;
 
 	public void checkUniqueProperty(
-				User user, AbstractUserRequest userRequest){
-		String updatedUsername = "";
-		String updatedSsn = "";
-		String updatedEmail = "";
-		String updatedPhone = "";
-		boolean isChanged = false;
-		//we re checking if the user updated the unique properties
-		if (!user.getUsername().equals(userRequest.getUsername())) {
-			updatedUsername = userRequest.getUsername();
-			isChanged = true;
-		}
-		if (!user.getSsn().equals(userRequest.getSsn())) {
-			updatedSsn = userRequest.getSsn();
-			isChanged = true;
-		}
+				User user,
+				AbstractUserRequest userRequest) {
+		String updatedUsername = user.getUsername()
+					                         .equals(userRequest.getUsername()) ? "" : userRequest.getUsername();
+		String updatedSsn = user.getSsn()
+					                    .equals(userRequest.getSsn()) ? "" : userRequest.getSsn();
+		String updatedEmail = user.getEmail()
+					                      .equals(userRequest.getEmail()) ? "" : userRequest.getEmail();
+		String updatedPhone = user.getPhoneNumber()
+					                      .equals(userRequest.getPhoneNumber()) ? "" : userRequest.getPhoneNumber();
 
-		if (!user.getEmail().equals(userRequest.getEmail())) {
-			updatedEmail = userRequest.getEmail();
-			isChanged = true;
-		}
+		//check if there is any change
+		boolean isChanged = !updatedUsername.isEmpty() || !updatedSsn.isEmpty() || !updatedEmail.isEmpty() || !updatedPhone.isEmpty();
 
-		if (!user.getPhoneNumber().equals(userRequest.getPhoneNumber())) {
-			updatedPhone = userRequest.getPhoneNumber();
-			isChanged = true;
-		}
-		//if the user updated the unique properties, we re checking if the updated values are already exist in the DB
+		//if there is any change, check if the new values are unique
 		if (isChanged) {
 			checkDuplication(updatedUsername, updatedSsn, updatedPhone, updatedEmail);
 		}
-
 	}
 
 	public void checkDuplication(
