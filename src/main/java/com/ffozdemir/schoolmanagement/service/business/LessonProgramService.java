@@ -3,6 +3,7 @@ package com.ffozdemir.schoolmanagement.service.business;
 import com.ffozdemir.schoolmanagement.entity.concretes.business.EducationTerm;
 import com.ffozdemir.schoolmanagement.entity.concretes.business.Lesson;
 import com.ffozdemir.schoolmanagement.entity.concretes.business.LessonProgram;
+import com.ffozdemir.schoolmanagement.exception.BadRequestException;
 import com.ffozdemir.schoolmanagement.exception.ResourceNotFoundException;
 import com.ffozdemir.schoolmanagement.payload.mappers.LessonProgramMapper;
 import com.ffozdemir.schoolmanagement.payload.messages.ErrorMessages;
@@ -93,12 +94,12 @@ public class LessonProgramService {
 
 	public List<LessonProgram> getLessonProgramById(
 				List<Long> lessonIdList) {
-		for (Long lessonProgramId : lessonIdList) {
-			ifExistById(lessonProgramId);
-		}
 		List<LessonProgram> lessonProgramList = lessonProgramRepository.findAllById(lessonIdList);
 		if (lessonProgramList.isEmpty()) {
 			throw new ResourceNotFoundException(ErrorMessages.NOT_FOUND_LESSON_PROGRAM_MESSAGE_WITHOUT_ID_INFO);
+		}
+		if (lessonProgramList.size() != lessonIdList.size()) {
+			throw new BadRequestException(ErrorMessages.LESSON_PROGRAM_ALREADY_ADDED);
 		}
 		return lessonProgramList;
 	}
