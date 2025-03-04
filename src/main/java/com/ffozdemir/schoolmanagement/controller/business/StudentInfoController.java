@@ -20,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudentInfoController {
 	private final StudentInfoService studentInfoService;
-	private final HttpServletRequest httpServletRequest;
 
 	@PreAuthorize("hasAnyAuthority('Teacher')")
 	@PostMapping("/save")
