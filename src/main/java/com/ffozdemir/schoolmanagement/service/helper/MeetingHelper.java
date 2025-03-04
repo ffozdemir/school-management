@@ -39,27 +39,28 @@ public class MeetingHelper {
 				LocalTime startTime,
 				LocalTime stopTime) {
 		Set<Meet> existingMeetings = new HashSet<>();
-		for (Long id : studentIdList) {
-			//check a student really exist + is a student
+		studentIdList.forEach(id -> {
+			// check if the user exists and is a student
 			methodHelper.checkUserRole(methodHelper.isUserExist(id), RoleType.STUDENT);
-			//add all student's meetings to collection
+			// add all student's meetings to the collection
 			existingMeetings.addAll(meetingRepository.findByStudentList_IdEquals(id));
-		}
-		//add all teacher meetings to collection
+		});
+		// add all teacher meetings to the collection
 		existingMeetings.addAll(meetingRepository.getByAdvisoryTeacher_IdEquals(teacherId));
-		//then compare each of them with DTO
-		for (Meet meet : existingMeetings) {
-			if (existingMeetings.size() == 1) {
-				continue;
-			} else {
-				LocalTime existingStartTime = meet.getStartTime();
-				LocalTime existingStopTime = meet.getStopTime();
-				if (meet.getDate()
-							    .equals(meetingDate) && ((startTime.isAfter(existingStartTime) && startTime.isBefore(existingStopTime)) || (stopTime.isAfter(existingStartTime) && stopTime.isBefore(existingStopTime)) || (startTime.isBefore(existingStartTime) && stopTime.isAfter(existingStopTime)) || (startTime.equals(existingStartTime) || stopTime.equals(existingStopTime)))) {
-					throw new ConflictException(ErrorMessages.MEET_HOURS_CONFLICT);
-				}
-			}
-		}
+		// compare each meeting with the DTO
+		existingMeetings.stream()
+					.filter(meet -> existingMeetings.size() > 1)
+					.forEach(meet -> {
+						LocalTime existingStartTime = meet.getStartTime();
+						LocalTime existingStopTime = meet.getStopTime();
+						if (meet.getDate().equals(meetingDate) &&
+									    ((startTime.isAfter(existingStartTime) && startTime.isBefore(existingStopTime)) ||
+												     (stopTime.isAfter(existingStartTime) && stopTime.isBefore(existingStopTime)) ||
+												     (startTime.isBefore(existingStartTime) && stopTime.isAfter(existingStopTime)) ||
+												     (startTime.equals(existingStartTime) || stopTime.equals(existingStopTime)))) {
+							throw new ConflictException(ErrorMessages.MEET_HOURS_CONFLICT);
+						}
+					});
 	}
 
 	public Meet isMeetingExistById(
