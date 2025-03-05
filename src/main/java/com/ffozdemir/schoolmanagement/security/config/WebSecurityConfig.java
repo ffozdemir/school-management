@@ -31,6 +31,8 @@ public class WebSecurityConfig {
 	//diger pakette olusturdugumuz security exception handler
 	private final AuthEntryPointJwt authEntryPointJwt;
 
+	private static final String[] AUTH_WHITELIST = {"/v3/api-docs/**", "swagger-ui.html", "/swagger-ui/**", "/", "index.html", "/images/**", "/css/**", "/js/**", "/contactMessages/save", "/auth/login"};
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(
 				HttpSecurity http) throws Exception {
@@ -105,9 +107,6 @@ public class WebSecurityConfig {
 			}
 		};
 	}
-
-
-	private static final String[] AUTH_WHITELIST = {"/v3/api-docs/**", "swagger-ui.html", "/swagger-ui/**", "/", "index.html", "/images/**", "/css/**", "/js/**", "/contactMessages/save", "/auth/login"};
 
 
 }

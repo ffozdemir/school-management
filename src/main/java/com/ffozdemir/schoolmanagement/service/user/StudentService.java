@@ -49,7 +49,7 @@ public class StudentService {
 		//set missing props
 		student.setAdvisorTeacherId(advisorTeacher.getId());
 		student.setActive(true);
-		//every student will have a number strating from 1000
+		//every student will have a number starting from 1000
 		student.setStudentNumber(getLastStudentNumber());
 		//save student
 		User savedStudent = userRepository.save(student);
