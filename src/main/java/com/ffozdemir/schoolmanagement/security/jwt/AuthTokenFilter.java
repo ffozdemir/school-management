@@ -4,7 +4,7 @@ import com.ffozdemir.schoolmanagement.security.service.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,18 +26,16 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthTokenFilter.class);
 
-	@Autowired
-	private JwtUtils jwtUtils;
+	private final JwtUtils jwtUtils;
 
-	@Autowired
-	private UserDetailServiceImpl userDetailService;
+	private final UserDetailServiceImpl userDetailService;
 
 
 	@Override
 	protected void doFilterInternal(
-				HttpServletRequest request,
-				HttpServletResponse response,
-				FilterChain filterChain) throws ServletException, IOException {
+				@NonNull HttpServletRequest request,
+				@NonNull HttpServletResponse response,
+				@NonNull FilterChain filterChain) throws ServletException, IOException {
 		try {
 			//1-from every request, we will get JWT
 			String jwt = parseJwt(request);
@@ -53,14 +51,22 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 				SecurityContextHolder.getContext()
 							.setAuthentication(authentication);
+				LOGGER.debug("User '{}' authenticated successfully", username);
 			}
 		} catch (UsernameNotFoundException e) {
 			LOGGER.error("Can not set user authentication", e);
+		} catch (Exception e) {
+			LOGGER.error("Authentication process failed: {}", e.getMessage());
 		}
 		filterChain.doFilter(request, response);
 	}
 
-	//Authorization -> Bearer ljsdfnkltskdfnvszlkfnvaqqdfknvaefkdsnvsacdfjknvcaldknsvcal
+	/**
+	 * Extracts JWT token from the Authorization header.
+	 *
+	 * @param request HTTP request containing the Authorization header
+	 * @return JWT token if present and valid format, null otherwise
+	 */
 	private String parseJwt(
 				HttpServletRequest request) {
 		String authHeader = request.getHeader("Authorization");
