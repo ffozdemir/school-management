@@ -2,10 +2,12 @@ package com.ffozdemir.schoolmanagement.security.config;
 
 import com.ffozdemir.schoolmanagement.security.jwt.AuthEntryPointJwt;
 import com.ffozdemir.schoolmanagement.security.jwt.AuthTokenFilter;
+import com.ffozdemir.schoolmanagement.security.jwt.JwtUtils;
 import com.ffozdemir.schoolmanagement.security.service.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -27,6 +29,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebSecurityConfig {
 
 	private final UserDetailServiceImpl userDetailService;
+
+	private final JwtUtils jwtUtils;
 
 	//diger pakette olusturdugumuz security exception handler
 	private final AuthEntryPointJwt authEntryPointJwt;
@@ -83,7 +87,7 @@ public class WebSecurityConfig {
 
 	@Bean
 	public AuthTokenFilter authenticationJwtTokenFilter() {
-		return new AuthTokenFilter();
+		return new AuthTokenFilter(jwtUtils, userDetailService);
 	}
 
 	@Bean
@@ -98,7 +102,7 @@ public class WebSecurityConfig {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(
-						CorsRegistry registry) {
+						@NonNull CorsRegistry registry) {
 				registry.addMapping("/**")
 							//we let all sources to call our APIs
 							.allowedOrigins("*")
